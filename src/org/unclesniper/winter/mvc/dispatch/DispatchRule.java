@@ -2,19 +2,19 @@ package org.unclesniper.winter.mvc.dispatch;
 
 import java.util.List;
 import java.util.LinkedList;
-import org.unclesniper.winter.mvc.PathParameterizedRequestHandler;
+import org.unclesniper.winter.mvc.ParameterizedRequestHandler;
 
-public final class DispatchRule<PathKeyT> {
+public final class DispatchRule<PathKeyT, ParameterT> {
 
 	private int verbMask;
 
 	private final List<PathMatcher<PathKeyT>> pathMatchers = new LinkedList<PathMatcher<PathKeyT>>();
 
-	private PathParameterizedRequestHandler<PathKeyT> requestHandler;
+	private ParameterizedRequestHandler<ParameterT> requestHandler;
 
 	private boolean cacheable;
 
-	public DispatchRule(int verbMask, PathParameterizedRequestHandler<PathKeyT> requestHandler) {
+	public DispatchRule(int verbMask, ParameterizedRequestHandler<ParameterT> requestHandler) {
 		this.verbMask = verbMask;
 		this.requestHandler = requestHandler;
 	}
@@ -35,11 +35,11 @@ public final class DispatchRule<PathKeyT> {
 		pathMatchers.add(matcher == null ? new RejectingPathMatcher<PathKeyT>() : matcher);
 	}
 
-	public PathParameterizedRequestHandler<PathKeyT> getRequestHandler() {
+	public ParameterizedRequestHandler<ParameterT> getRequestHandler() {
 		return requestHandler;
 	}
 
-	public void setRequestHandler(PathParameterizedRequestHandler<PathKeyT> requestHandler) {
+	public void setRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler) {
 		this.requestHandler = requestHandler;
 	}
 

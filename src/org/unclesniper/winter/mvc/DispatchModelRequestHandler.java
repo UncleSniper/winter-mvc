@@ -2,6 +2,7 @@ package org.unclesniper.winter.mvc;
 
 import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,8 +18,31 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 		public final List<DispatchRule<PathKeyT, ParameterT>> rules
 				= new LinkedList<DispatchRule<PathKeyT, ParameterT>>();
 
-		public final Map<String, ParameterizedRequestHandler<? super ParameterT>> cachedHandlers
-				= new ConcurrentHashMap<String, ParameterizedRequestHandler<? super ParameterT>>();
+		public final Map<String, PerPath<PathKeyT, ParameterT>> cachedHandlers
+				= new ConcurrentHashMap<String, PerPath<PathKeyT, ParameterT>>();
+
+	}
+
+	private static final class PerPath<PathKeyT, ParameterT> {
+
+		public ParameterizedRequestHandler<? super ParameterT> defaultHandler;
+
+		public final Map<String, ParameterizedRequestHandler<? super ParameterT>> handlerMap
+				= new HashMap<String, ParameterizedRequestHandler<? super ParameterT>>();
+
+		public void mergeRule(DispatchRule<PathKeyT, ParameterT> rule) {
+			ParameterizedRequestHandler<? super ParameterT> requestHandler = rule.getRequestHandler();
+			for(String contentType : rule.getContentTypes()) {
+				if(contentType == null) {
+					if(defaultHandler == null)
+						defaultHandler = requestHandler;
+				}
+				else {
+					if(!handlerMap.containsKey(contentType))
+						handlerMap.put(contentType, requestHandler);
+				}
+			}
+		}
 
 	}
 
@@ -64,15 +88,18 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 		for(HTTPVerb verb : HTTPVerb.values()) {
 			if((verbMask & (1 << verb.ordinal())) == 0)
 				continue;
-			perVerb[verb.ordinal()].rules.add(rule);
+			PerVerb<PathKeyT, ParameterT> pv = perVerb[verb.ordinal()];
+			pv.rules.add(rule);
 		}
 	}
 
 	public boolean removeRule(DispatchRule<PathKeyT, ParameterT> rule) {
 		if(!rules.remove(rule))
 			return false;
-		for(int i = 0; i < perVerb.length; ++i)
+		for(int i = 0; i < perVerb.length; ++i) {
 			perVerb[i].rules.remove(rule);
+			perVerb[i].cachedHandlers.clear();
+		}
 		return true;
 	}
 
@@ -88,17 +115,19 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 			pathInfo = "";
 		PerVerb<PathKeyT, ParameterT> pv = perVerb[request.getMethod().ordinal()];
 		PathParameters<PathKeyT> parameters = new PathParameters<PathKeyT>(pathInfo);
-		ParameterizedRequestHandler<? super ParameterT> handler = pv.cachedHandlers.get(pathInfo);
-		if(handler == null) {
+		PerPath<PathKeyT, ParameterT> pp = pv.cachedHandlers.get(pathInfo);
+		if(pp == null) {
 			int length = pathInfo.length();
 			int headOffset = 0;
 			while(headOffset < length && pathInfo.charAt(headOffset) == '/')
 				++headOffset;
+			pp = new PerPath<PathKeyT, ParameterT>();
+			boolean haveMatch = false, isCacheable = true;
 			for(DispatchRule<PathKeyT, ParameterT> rule : pv.rules) {
 				boolean candidate = true;
 				int offset = headOffset;
 				for(PathMatcher<PathKeyT> matcher : rule.getPathMatchers()) {
-					int consumed = matcher.matchPath(pathInfo, offset, parameters);
+					int consumed = matcher.matchPath(pathInfo, offset, haveMatch ? null : parameters);
 					if(consumed < 0) {
 						candidate = false;
 						break;
@@ -106,7 +135,8 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 					offset += consumed;
 				}
 				if(!candidate) {
-					parameters.clearParameters();
+					if(!haveMatch)
+						parameters.clearParameters();
 					continue;
 				}
 				for(; offset < length; ++offset) {
@@ -116,16 +146,21 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 					}
 				}
 				if(!candidate) {
-					parameters.clearParameters();
+					if(!haveMatch)
+						parameters.clearParameters();
 					continue;
 				}
-				handler = rule.getRequestHandler();
-				if(handler != null) {
-					if(rule.isCacheable())
-						pv.cachedHandlers.put(pathInfo, handler);
-					break;
-				}
+				haveMatch = true;
+				if(!rule.isCacheable())
+					isCacheable = false;
+				pp.mergeRule(rule);
 			}
+			if(isCacheable)
+				pv.cachedHandlers.put(pathInfo, pp);
+		}
+		ParameterizedRequestHandler<? super ParameterT> handler = pp.handlerMap.get(request.getContentType());
+		if(handler == null) {
+			handler = pp.defaultHandler;
 			if(handler == null)
 				throw new NoRouteForRequestException(request.getMethod(), pathInfo);
 		}

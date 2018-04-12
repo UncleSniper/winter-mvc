@@ -1,6 +1,8 @@
 package org.unclesniper.winter.mvc.dispatch;
 
+import java.util.Set;
 import java.util.List;
+import java.util.HashSet;
 import java.util.LinkedList;
 import org.unclesniper.winter.mvc.ParameterizedRequestHandler;
 
@@ -9,6 +11,8 @@ public final class DispatchRule<PathKeyT, ParameterT> {
 	private int verbMask;
 
 	private final List<PathMatcher<PathKeyT>> pathMatchers = new LinkedList<PathMatcher<PathKeyT>>();
+
+	private final Set<String> contentTypes = new HashSet<String>();
 
 	private ParameterizedRequestHandler<? super ParameterT> requestHandler;
 
@@ -33,6 +37,14 @@ public final class DispatchRule<PathKeyT, ParameterT> {
 
 	public void addPathMatcher(PathMatcher<PathKeyT> matcher) {
 		pathMatchers.add(matcher == null ? new RejectingPathMatcher<PathKeyT>() : matcher);
+	}
+
+	public Iterable<String> getContentTypes() {
+		return contentTypes;
+	}
+
+	public void addContentType(String contentType) {
+		contentTypes.add(contentType);
 	}
 
 	public ParameterizedRequestHandler<? super ParameterT> getRequestHandler() {

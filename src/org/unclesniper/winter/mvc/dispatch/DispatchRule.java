@@ -39,12 +39,22 @@ public final class DispatchRule<PathKeyT, ParameterT> {
 		pathMatchers.add(matcher == null ? new RejectingPathMatcher<PathKeyT>() : matcher);
 	}
 
+	public void addPathMatchers(Iterable<PathMatcher<PathKeyT>> matchers) {
+		for(PathMatcher<PathKeyT> matcher : matchers)
+			addPathMatcher(matcher);
+	}
+
 	public Iterable<String> getContentTypes() {
 		return contentTypes;
 	}
 
 	public void addContentType(String contentType) {
 		contentTypes.add(contentType);
+	}
+
+	public void addContentTypes(Iterable<String> contentType) {
+		for(String type : contentTypes)
+			contentTypes.add(type);
 	}
 
 	public ParameterizedRequestHandler<? super ParameterT> getRequestHandler() {

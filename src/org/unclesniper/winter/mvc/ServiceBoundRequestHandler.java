@@ -119,7 +119,7 @@ public class ServiceBoundRequestHandler<AppServiceT, RequestServiceT, ParameterT
 
 	}
 
-	private ParameterizedRequestHandler<ParameterT> requestHandler;
+	private ParameterizedRequestHandler<? super ParameterT> requestHandler;
 
 	private final Object appServiceLock = new Object();
 
@@ -129,21 +129,21 @@ public class ServiceBoundRequestHandler<AppServiceT, RequestServiceT, ParameterT
 
 	private ContextServiceProvider<RequestServiceT, RequestContext<AppServiceT>> requestServiceProvider;
 
-	private RequestParameterMerger<ParameterT, AppServiceT> appServiceMerger;
+	private RequestParameterMerger<? super ParameterT, ? super AppServiceT> appServiceMerger;
 
-	private RequestParameterMerger<ParameterT, RequestServiceT> requestServiceMerger;
+	private RequestParameterMerger<? super ParameterT, ? super RequestServiceT> requestServiceMerger;
 
 	public ServiceBoundRequestHandler() {}
 
-	public ServiceBoundRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler) {
+	public ServiceBoundRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler) {
 		this.requestHandler = requestHandler;
 	}
 
-	public ServiceBoundRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler,
+	public ServiceBoundRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler,
 			ServiceProvider<AppServiceT> appServiceProvider,
 			ContextServiceProvider<RequestServiceT, RequestContext<AppServiceT>> requestServiceProvider,
-			RequestParameterMerger<ParameterT, AppServiceT> appServiceMerger,
-			RequestParameterMerger<ParameterT, RequestServiceT> requestServiceMerger) {
+			RequestParameterMerger<? super ParameterT, ? super AppServiceT> appServiceMerger,
+			RequestParameterMerger<? super ParameterT, ? super RequestServiceT> requestServiceMerger) {
 		this.requestHandler = requestHandler;
 		this.appServiceProvider = appServiceProvider;
 		this.requestServiceProvider = requestServiceProvider;
@@ -151,11 +151,11 @@ public class ServiceBoundRequestHandler<AppServiceT, RequestServiceT, ParameterT
 		this.requestServiceMerger = requestServiceMerger;
 	}
 
-	public ParameterizedRequestHandler<ParameterT> getRequestHandler() {
+	public ParameterizedRequestHandler<? super ParameterT> getRequestHandler() {
 		return requestHandler;
 	}
 
-	public void setRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler) {
+	public void setRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler) {
 		this.requestHandler = requestHandler;
 	}
 
@@ -214,26 +214,28 @@ public class ServiceBoundRequestHandler<AppServiceT, RequestServiceT, ParameterT
 				: ContextServiceProvider.ignore(requestServiceProvider);
 	}
 
-	public RequestParameterMerger<ParameterT, AppServiceT> getAppServiceMerger() {
+	public RequestParameterMerger<? super ParameterT, ? super AppServiceT> getAppServiceMerger() {
 		return appServiceMerger;
 	}
 
-	public void setAppServiceMerger(RequestParameterMerger<ParameterT, AppServiceT> appServiceMerger) {
+	public void setAppServiceMerger(RequestParameterMerger<? super ParameterT, ? super AppServiceT>
+			appServiceMerger) {
 		this.appServiceMerger = appServiceMerger;
 	}
 
-	public RequestParameterMerger<ParameterT, RequestServiceT> getRequestServiceMerger() {
+	public RequestParameterMerger<? super ParameterT, ? super RequestServiceT> getRequestServiceMerger() {
 		return requestServiceMerger;
 	}
 
-	public void setRequestServiceMerger(RequestParameterMerger<ParameterT, RequestServiceT> requestServiceMerger) {
+	public void setRequestServiceMerger(RequestParameterMerger<? super ParameterT, ? super RequestServiceT>
+			requestServiceMerger) {
 		this.requestServiceMerger = requestServiceMerger;
 	}
 
 	public void handleRequest(HTTPRequest request, HTTPResponse response, ParameterT parameter)
 			throws IOException, HTTPServiceException {
 		AppServiceT as = appService;
-		RequestParameterMerger<ParameterT, AppServiceT> asm = appServiceMerger;
+		RequestParameterMerger<? super ParameterT, ? super AppServiceT> asm = appServiceMerger;
 		if(as == null && appServiceProvider != null && asm != null) {
 			synchronized(appServiceLock) {
 				if(appService == null) {
@@ -247,7 +249,7 @@ public class ServiceBoundRequestHandler<AppServiceT, RequestServiceT, ParameterT
 		ContextServiceProvider<RequestServiceT, RequestContext<AppServiceT>> rsp = requestServiceProvider;
 		RequestServiceT rs;
 		RequestContext<AppServiceT> rctx;
-		RequestParameterMerger<ParameterT, RequestServiceT> rsm = requestServiceMerger;
+		RequestParameterMerger<? super ParameterT, ? super RequestServiceT> rsm = requestServiceMerger;
 		if(rsp == null || rsm == null) {
 			rctx = null;
 			rs = null;

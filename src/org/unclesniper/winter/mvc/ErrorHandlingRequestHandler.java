@@ -6,30 +6,30 @@ import org.unclesniper.winter.mvc.dispatch.NoRouteForRequestException;
 
 public class ErrorHandlingRequestHandler<ParameterT> implements ParameterizedRequestHandler<ParameterT> {
 
-	private ParameterizedRequestHandler<ParameterT> requestHandler;
+	private ParameterizedRequestHandler<? super ParameterT> requestHandler;
 
-	private RequestParameterMerger<ParameterT, ErrorContext> errorContextMerger;
+	private RequestParameterMerger<? super ParameterT, ? super ErrorContext> errorContextMerger;
 
-	private final SubtypeMap<Throwable, ParameterizedRequestHandler<ParameterT>> errorHandlers
-			= new SubtypeMap<Throwable, ParameterizedRequestHandler<ParameterT>>();
+	private final SubtypeMap<Throwable, ParameterizedRequestHandler<? super ParameterT>> errorHandlers
+			= new SubtypeMap<Throwable, ParameterizedRequestHandler<? super ParameterT>>();
 
 	public ErrorHandlingRequestHandler() {}
 
-	public ErrorHandlingRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler) {
+	public ErrorHandlingRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler) {
 		this.requestHandler = requestHandler;
 	}
 
-	public ErrorHandlingRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler,
-			RequestParameterMerger<ParameterT, ErrorContext> errorContextMerger) {
+	public ErrorHandlingRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler,
+			RequestParameterMerger<? super ParameterT, ? super ErrorContext> errorContextMerger) {
 		this.requestHandler = requestHandler;
 		this.errorContextMerger = errorContextMerger;
 	}
 
-	public ParameterizedRequestHandler<ParameterT> getRequestHandler() {
+	public ParameterizedRequestHandler<? super ParameterT> getRequestHandler() {
 		return requestHandler;
 	}
 
-	public void setRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler) {
+	public void setRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler) {
 		this.requestHandler = requestHandler;
 	}
 
@@ -37,16 +37,17 @@ public class ErrorHandlingRequestHandler<ParameterT> implements ParameterizedReq
 		this.requestHandler = requestHandler == null ? null : ParameterizedRequestHandler.ignore(requestHandler);
 	}
 
-	public RequestParameterMerger<ParameterT, ErrorContext> getErrorContextMerger() {
+	public RequestParameterMerger<? super ParameterT, ? super ErrorContext> getErrorContextMerger() {
 		return errorContextMerger;
 	}
 
-	public void setErrorContextMerger(RequestParameterMerger<ParameterT, ErrorContext> errorContextMerger) {
+	public void setErrorContextMerger(RequestParameterMerger<? super ParameterT, ? super ErrorContext>
+			errorContextMerger) {
 		this.errorContextMerger = errorContextMerger;
 	}
 
 	public void putErrorHandler(Class<? extends Throwable> errorType,
-			ParameterizedRequestHandler<ParameterT> errorHandler) {
+			ParameterizedRequestHandler<? super ParameterT> errorHandler) {
 		errorHandlers.put(errorType, errorHandler);
 	}
 
@@ -80,7 +81,7 @@ public class ErrorHandlingRequestHandler<ParameterT> implements ParameterizedReq
 			httpServiceException = null;
 			runtimeException = rte;
 		}
-		ParameterizedRequestHandler<ParameterT> errorHandler = errorHandlers.get(error.getClass());
+		ParameterizedRequestHandler<? super ParameterT> errorHandler = errorHandlers.get(error.getClass());
 		if(errorHandler == null) {
 			if(ioException != null)
 				throw ioException;

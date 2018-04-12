@@ -10,11 +10,11 @@ public final class DispatchRule<PathKeyT, ParameterT> {
 
 	private final List<PathMatcher<PathKeyT>> pathMatchers = new LinkedList<PathMatcher<PathKeyT>>();
 
-	private ParameterizedRequestHandler<ParameterT> requestHandler;
+	private ParameterizedRequestHandler<? super ParameterT> requestHandler;
 
 	private boolean cacheable;
 
-	public DispatchRule(int verbMask, ParameterizedRequestHandler<ParameterT> requestHandler) {
+	public DispatchRule(int verbMask, ParameterizedRequestHandler<? super ParameterT> requestHandler) {
 		this.verbMask = verbMask;
 		this.requestHandler = requestHandler;
 	}
@@ -35,11 +35,11 @@ public final class DispatchRule<PathKeyT, ParameterT> {
 		pathMatchers.add(matcher == null ? new RejectingPathMatcher<PathKeyT>() : matcher);
 	}
 
-	public ParameterizedRequestHandler<ParameterT> getRequestHandler() {
+	public ParameterizedRequestHandler<? super ParameterT> getRequestHandler() {
 		return requestHandler;
 	}
 
-	public void setRequestHandler(ParameterizedRequestHandler<ParameterT> requestHandler) {
+	public void setRequestHandler(ParameterizedRequestHandler<? super ParameterT> requestHandler) {
 		this.requestHandler = requestHandler;
 	}
 

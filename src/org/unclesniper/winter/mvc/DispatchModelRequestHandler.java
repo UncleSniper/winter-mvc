@@ -17,15 +17,15 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 		public final List<DispatchRule<PathKeyT, ParameterT>> rules
 				= new LinkedList<DispatchRule<PathKeyT, ParameterT>>();
 
-		public final Map<String, ParameterizedRequestHandler<ParameterT>> cachedHandlers
-				= new ConcurrentHashMap<String, ParameterizedRequestHandler<ParameterT>>();
+		public final Map<String, ParameterizedRequestHandler<? super ParameterT>> cachedHandlers
+				= new ConcurrentHashMap<String, ParameterizedRequestHandler<? super ParameterT>>();
 
 	}
 
 	private final List<DispatchRule<PathKeyT, ParameterT>> rules
 			= new LinkedList<DispatchRule<PathKeyT, ParameterT>>();
 
-	private RequestParameterMerger<ParameterT, PathParameters<PathKeyT>> parameterMerger;
+	private RequestParameterMerger<? super ParameterT, ? super PathParameters<PathKeyT>> parameterMerger;
 
 	@SuppressWarnings("unchecked")
 	private final PerVerb<PathKeyT, ParameterT>[] perVerb = new PerVerb[HTTPVerb.values().length];
@@ -35,11 +35,12 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 			perVerb[i] = new PerVerb<PathKeyT, ParameterT>();
 	}
 
-	public RequestParameterMerger<ParameterT, PathParameters<PathKeyT>> getParameterMerger() {
+	public RequestParameterMerger<? super ParameterT, ? super PathParameters<PathKeyT>> getParameterMerger() {
 		return parameterMerger;
 	}
 
-	public void setParameterMerger(RequestParameterMerger<ParameterT, PathParameters<PathKeyT>> parameterMerger) {
+	public void setParameterMerger(RequestParameterMerger<? super ParameterT, ? super PathParameters<PathKeyT>>
+			parameterMerger) {
 		this.parameterMerger = parameterMerger;
 	}
 
@@ -87,7 +88,7 @@ public class DispatchModelRequestHandler<PathKeyT, ParameterT> implements Parame
 			pathInfo = "";
 		PerVerb<PathKeyT, ParameterT> pv = perVerb[request.getMethod().ordinal()];
 		PathParameters<PathKeyT> parameters = new PathParameters<PathKeyT>(pathInfo);
-		ParameterizedRequestHandler<ParameterT> handler = pv.cachedHandlers.get(pathInfo);
+		ParameterizedRequestHandler<? super ParameterT> handler = pv.cachedHandlers.get(pathInfo);
 		if(handler == null) {
 			int length = pathInfo.length();
 			int headOffset = 0;

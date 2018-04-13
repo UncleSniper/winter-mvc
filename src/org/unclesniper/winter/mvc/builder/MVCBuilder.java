@@ -4,132 +4,162 @@ import org.unclesniper.winter.mvc.View;
 import org.unclesniper.winter.mvc.HTTPVerb;
 import org.unclesniper.winter.mvc.Controller;
 import org.unclesniper.winter.mvc.util.Transform;
+import org.unclesniper.winter.mvc.RequestHandler;
 import org.unclesniper.winter.mvc.ParameterizedView;
 import org.unclesniper.winter.mvc.dispatch.PathMatcher;
 import org.unclesniper.winter.mvc.ParameterizedController;
 import org.unclesniper.winter.mvc.ParameterizedRequestHandler;
+import org.unclesniper.winter.mvc.DispatchModelRequestHandler;
 
-public interface MVCBuilder<PathKeyT, RequestParameterT> {
+public interface MVCBuilder<PathKeyT, RequestParameterT,
+		FreeReturnT extends MVCBuilder<PathKeyT, RequestParameterT, FreeReturnT, RefreeReturnT>,
+		RefreeReturnT extends MVCBuilder<PathKeyT, RequestParameterT, RefreeReturnT, RefreeReturnT>> {
 
-	MVCBuilder<PathKeyT, RequestParameterT> on(HTTPVerb... verbs);
+	DispatchModelRequestHandler<PathKeyT, RequestParameterT> dispatcher();
 
-	MVCBuilder<PathKeyT, RequestParameterT> andOn(HTTPVerb... verbs);
+	FreeReturnT on(HTTPVerb... verbs);
 
-	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> at(PathMatcher<PathKeyT>... path);
-
-	MVCBuilder<PathKeyT, RequestParameterT> at(String... path);
-
-	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> andAt(PathMatcher<PathKeyT>... path);
-
-	MVCBuilder<PathKeyT, RequestParameterT> andAt(String... path);
+	FreeReturnT andOn(HTTPVerb... verbs);
 
 	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> followedBy(PathMatcher<PathKeyT>... path);
+	FreeReturnT at(PathMatcher<PathKeyT>... path);
 
-	MVCBuilder<PathKeyT, RequestParameterT> followedBy(String... path);
-
-	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> orFollowedBy(PathMatcher<PathKeyT>... path);
-
-	MVCBuilder<PathKeyT, RequestParameterT> orFollowedBy(String... path);
-
-	MVCBuilder<PathKeyT, RequestParameterT> dot(String extension);
-
-	MVCBuilder<PathKeyT, RequestParameterT> html();
+	FreeReturnT at(String... path);
 
 	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> html(PathMatcher<PathKeyT>... head);
+	FreeReturnT andAt(PathMatcher<PathKeyT>... path);
 
-	MVCBuilder<PathKeyT, RequestParameterT> html(String... head);
-
-	MVCBuilder<PathKeyT, RequestParameterT> json();
+	FreeReturnT andAt(String... path);
 
 	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> json(PathMatcher<PathKeyT>... head);
+	FreeReturnT followedBy(PathMatcher<PathKeyT>... path);
 
-	MVCBuilder<PathKeyT, RequestParameterT> json(String... head);
-
-	MVCBuilder<PathKeyT, RequestParameterT> xml();
+	FreeReturnT followedBy(String... path);
 
 	@SuppressWarnings("unchecked")
-	MVCBuilder<PathKeyT, RequestParameterT> xml(PathMatcher<PathKeyT>... head);
+	FreeReturnT orFollowedBy(PathMatcher<PathKeyT>... path);
 
-	MVCBuilder<PathKeyT, RequestParameterT> xml(String... head);
+	FreeReturnT orFollowedBy(String... path);
 
-	MVCBuilder<PathKeyT, RequestParameterT> content(String... contentTypes);
+	FreeReturnT dot(String extension);
 
-	MVCBuilder<PathKeyT, RequestParameterT> orContent(String... contentTypes);
+	FreeReturnT html();
 
-	MVCBuilder<PathKeyT, RequestParameterT> onJSON();
+	@SuppressWarnings("unchecked")
+	FreeReturnT html(PathMatcher<PathKeyT>... head);
 
-	MVCBuilder<PathKeyT, RequestParameterT> onXML();
+	FreeReturnT html(String... head);
 
-	MVCBuilder<PathKeyT, RequestParameterT>
-	handle(ParameterizedRequestHandler<? super RequestParameterT> handler);
+	FreeReturnT json();
 
-	MVCBuilder<PathKeyT, RequestParameterT>
-	handleAnd(ParameterizedRequestHandler<? super RequestParameterT> handler);
+	@SuppressWarnings("unchecked")
+	FreeReturnT json(PathMatcher<PathKeyT>... head);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handle(Controller<? extends ModelT> controller, View<? super ModelT> view);
+	FreeReturnT json(String... head);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handleAnd(Controller<? extends ModelT> controller, View<? super ModelT> view);
+	FreeReturnT xml();
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handle(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
+	@SuppressWarnings("unchecked")
+	FreeReturnT xml(PathMatcher<PathKeyT>... head);
+
+	FreeReturnT xml(String... head);
+
+	FreeReturnT content(String... contentTypes);
+
+	FreeReturnT orContent(String... contentTypes);
+
+	FreeReturnT onJSON();
+
+	FreeReturnT onXML();
+
+	RefreeReturnT handle(RequestHandler handler);
+
+	RefreeReturnT handleAnd(RequestHandler handler);
+
+	RefreeReturnT handle(ParameterizedRequestHandler<? super RequestParameterT> handler);
+
+	RefreeReturnT handleAnd(ParameterizedRequestHandler<? super RequestParameterT> handler);
+
+	<ModelT> RefreeReturnT handle(Controller<? extends ModelT> controller, View<? super ModelT> view);
+
+	<ModelT> RefreeReturnT handleAnd(Controller<? extends ModelT> controller, View<? super ModelT> view);
+
+	<ModelT> RefreeReturnT handle(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
 			View<? super ModelT> view);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handleAnd(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
+	<ModelT> RefreeReturnT handleAnd(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
 			View<? super ModelT> view);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handle(Controller<? extends ModelT> controller,
+	<ModelT> RefreeReturnT handle(Controller<? extends ModelT> controller,
 			ParameterizedView<? super ModelT, ? super RequestParameterT> view);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handleAnd(Controller<? extends ModelT> controller,
+	<ModelT> RefreeReturnT handleAnd(Controller<? extends ModelT> controller,
 			ParameterizedView<? super ModelT, ? super RequestParameterT> view);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handle(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
+	<ModelT> RefreeReturnT handle(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
 			ParameterizedView<? super ModelT, ? super RequestParameterT> view);
 
-	<ModelT> MVCBuilder<PathKeyT, RequestParameterT>
-	handleAnd(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
+	<ModelT> RefreeReturnT handleAnd(ParameterizedController<? extends ModelT, ? super RequestParameterT> controller,
 			ParameterizedView<? super ModelT, ? super RequestParameterT> view);
 
-	<ModelT, ControllerParameterT> MVCBuilder<PathKeyT, RequestParameterT>
+	<ModelT, ControllerParameterT> RefreeReturnT
 	handle(ParameterizedController<? extends ModelT, ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			View<? super ModelT> view);
 
-	<ModelT, ControllerParameterT> MVCBuilder<PathKeyT, RequestParameterT>
+	<ModelT, ControllerParameterT> RefreeReturnT
 	handleAnd(ParameterizedController<? extends ModelT, ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			View<? super ModelT> view);
 
-	<ModelT, ViewParameterT> MVCBuilder<PathKeyT, RequestParameterT>
+	<ModelT, ViewParameterT> RefreeReturnT
 	handle(Controller<? extends ModelT> controller, ParameterizedView<? super ModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
 
-	<ModelT, ViewParameterT> MVCBuilder<PathKeyT, RequestParameterT>
+	<ModelT, ViewParameterT> RefreeReturnT
 	handleAnd(Controller<? extends ModelT> controller, ParameterizedView<? super ModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
 
-	<ModelT, ControllerParameterT, ViewParameterT> MVCBuilder<PathKeyT, RequestParameterT>
+	<ModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
 	handle(ParameterizedController<? extends ModelT, ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			ParameterizedView<? super ModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
 
-	<ModelT, ControllerParameterT, ViewParameterT> MVCBuilder<PathKeyT, RequestParameterT>
+	<ModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
 	handleAnd(ParameterizedController<? extends ModelT, ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			ParameterizedView<? super ModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
+
+	<ModelT> MVCBuilderWithController<PathKeyT, RequestParameterT,
+			? extends MVCBuilderWithController<PathKeyT, RequestParameterT, ?, ?, RequestParameterT, ModelT>,
+			? extends MVCBuilder<PathKeyT, RequestParameterT, ?, ?>,
+			RequestParameterT, ModelT>
+	perform(Controller<ModelT> controller);
+
+	<ModelT> MVCBuilderWithController<PathKeyT, RequestParameterT,
+			? extends MVCBuilderWithController<PathKeyT, RequestParameterT, ?, ?, RequestParameterT, ModelT>,
+			? extends MVCBuilder<PathKeyT, RequestParameterT, ?, ?>,
+			RequestParameterT, ModelT>
+	perform(ParameterizedController<ModelT, ? super RequestParameterT> controller);
+
+	<ModelT, ControllerParameterT>
+	MVCBuilderWithController<PathKeyT, RequestParameterT,
+			? extends MVCBuilderWithController<PathKeyT, RequestParameterT, ?, ?, ControllerParameterT, ModelT>,
+			? extends MVCBuilder<PathKeyT, RequestParameterT, ?, ?>,
+			ControllerParameterT, ModelT>
+	perform(ParameterizedController<ModelT, ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform);
+
+	public static <PathKeyT, RequestParameterT> FreeBuilder<PathKeyT, RequestParameterT>
+	route(Transform<? super ParameterizedRequestHandler<? super RequestParameterT>,
+			? extends ParameterizedRequestHandler<? super RequestParameterT>> handlerTransform) {
+		return new FreeBuilder<PathKeyT, RequestParameterT>(handlerTransform);
+	}
+
+	public static <PathKeyT, RequestParameterT> FreeBuilder<PathKeyT, RequestParameterT> route() {
+		return MVCBuilder.route(null);
+	}
 
 }

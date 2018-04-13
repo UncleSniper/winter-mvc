@@ -10,6 +10,7 @@ import org.unclesniper.winter.mvc.dispatch.PathMatcher;
 import org.unclesniper.winter.mvc.dispatch.DispatchRule;
 import org.unclesniper.winter.mvc.dispatch.StringPathMatcher;
 import org.unclesniper.winter.mvc.ParameterizedRequestHandler;
+import org.unclesniper.winter.mvc.DispatchModelRequestHandler;
 
 public final class BuildState<PathKeyT, RequestParameterT> {
 
@@ -92,6 +93,11 @@ public final class BuildState<PathKeyT, RequestParameterT> {
 		else
 			rule.addContentTypes(contentTypes);
 		rules.add(rule);
+	}
+
+	public void putRules(DispatchModelRequestHandler<PathKeyT, RequestParameterT> dispatcher) {
+		for(DispatchRule<PathKeyT, RequestParameterT> rule : rules)
+			dispatcher.addRule(rule);
 	}
 
 }

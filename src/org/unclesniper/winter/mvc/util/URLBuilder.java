@@ -378,6 +378,57 @@ public class URLBuilder {
 		return this;
 	}
 
+	public String toString() {
+		if(pathBuilder != null) {
+			path = pathBuilder.toString();
+			pathBuilder = null;
+		}
+		if(queryBuilder != null) {
+			query = queryBuilder.toString();
+			queryBuilder = null;
+		}
+		StringBuilder builder = new StringBuilder();
+		if(scheme != null) {
+			builder.append(scheme);
+			builder.append(':');
+		}
+		if(host != null) {
+			builder.append("//");
+			if(user != null) {
+				builder.append(user);
+				builder.append('@');
+			}
+			builder.append(host);
+			if(port > 0) {
+				builder.append(':');
+				builder.append(String.valueOf(port));
+			}
+		}
+		if(path != null) {
+			if(host != null && path.length() > 0 && path.charAt(0) != '/')
+				builder.append('/');
+			builder.append(path);
+		}
+		else {
+			if(host != null)
+				builder.append('/');
+		}
+		if(query != null) {
+			builder.append('?');
+			builder.append(query);
+		}
+		if(fragment != null) {
+			builder.append('#');
+			builder.append(fragment);
+		}
+		return builder.toString();
+	}
+
+	public static URLBuilder decompose(String spec) {
+		//TODO
+		return null;
+	}
+
 	public static String encode(String piece) {
 		try {
 			return URLEncoder.encode(piece, "UTF-8");

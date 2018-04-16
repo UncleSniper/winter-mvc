@@ -7,7 +7,11 @@ public class IllegalURIException extends IllegalArgumentException {
 	private final int offset;
 
 	public IllegalURIException(String specifier, int offset) {
-		super("URI is illegal at offset " + offset + ": " + specifier);
+		this(specifier, offset, null);
+	}
+
+	public IllegalURIException(String specifier, int offset, Throwable cause) {
+		super("URI is illegal at offset " + offset + ": " + specifier, cause);
 		this.specifier = specifier;
 		this.offset = offset;
 	}

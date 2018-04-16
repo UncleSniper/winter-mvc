@@ -5,7 +5,7 @@ import java.net.URLDecoder;
 import org.unclesniper.winter.mvc.Doom;
 import java.io.UnsupportedEncodingException;
 
-public class URLBuilder {
+public class URLBuilder implements URLParser.URLPartSink {
 
 	private String scheme;
 
@@ -137,6 +137,36 @@ public class URLBuilder {
 
 	public String getFragment() {
 		return fragment;
+	}
+
+	public void setScheme(String scheme) {
+		this.scheme = scheme;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+		pathBuilder = null;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
+		queryBuilder = null;
+	}
+
+	public void setFragment(String fragment) {
+		this.fragment = fragment;
 	}
 
 	public URLBuilder scheme(String scheme) {
@@ -424,9 +454,123 @@ public class URLBuilder {
 		return builder.toString();
 	}
 
+	public URLBuilder resolve(final URLBuilder r) {
+		if(pathBuilder != null) {
+			path = pathBuilder.toString();
+			pathBuilder = null;
+		}
+		if(queryBuilder != null) {
+			query = queryBuilder.toString();
+			queryBuilder = null;
+		}
+		if(r.pathBuilder != null) {
+			r.path = r.pathBuilder.toString();
+			r.pathBuilder = null;
+		}
+		if(r.queryBuilder != null) {
+			r.query = r.queryBuilder.toString();
+			r.queryBuilder = null;
+		}
+		final URLBuilder base = this, t = new URLBuilder(null);
+		if(r.scheme != null) {
+			t.scheme = r.scheme;
+			t.user = r.user;
+			t.host = r.host;
+			t.port = r.port;
+			t.path = r.path == null ? null : URLBuilder.removeDotSegments(r.path);
+			t.query = r.query;
+		}
+		else {
+			if(r.host != null) {
+				t.user = r.user;
+				t.host = r.host;
+				t.port = r.port;
+				t.path = r.path == null ? null : URLBuilder.removeDotSegments(r.path);
+				t.query = r.query;
+			}
+			else {
+				if(r.path == null || r.path.length() == 0) {
+					t.path = base.path;
+					if(r.query != null)
+						t.query = r.query;
+					else
+						t.query = base.query;
+				}
+				else {
+					if(r.path.charAt(0) == '/')
+						t.path = URLBuilder.removeDotSegments(r.path);
+					else
+						t.path = URLBuilder.removeDotSegments(URLBuilder.mergePaths(base.host != null,
+								base.path, r.path));
+					t.query = r.query;
+				}
+				t.user = base.user;
+				t.host = base.host;
+				t.port = base.port;
+			}
+			t.scheme = base.scheme;
+		}
+		t.fragment = r.fragment;
+		return t;
+	}
+
+	private static String mergePaths(boolean baseHasAuthority, String basePath, String rPath) {
+		if(baseHasAuthority && (basePath == null || basePath.length() == 0))
+			return '/' + rPath;
+		int pos = basePath == null ? -1 : basePath.lastIndexOf('/');
+		return pos < 0 ? rPath : basePath.substring(0, pos + 1) + rPath;
+	}
+
+	private static String removeDotSegments(String input) {
+		int offset = 0, length = input.length();
+		StringBuilder output = new StringBuilder();
+		while(offset < length) {
+			// (A.)
+			if(input.startsWith("../", offset)) {
+				offset += 3;
+				continue;
+			}
+			if(input.startsWith("./", offset)) {
+				offset += 2;
+				continue;
+			}
+			// (B.)
+			if(input.startsWith("/./", offset)) {
+				offset += 2;
+				continue;
+			}
+			if(length - offset == 2 && input.startsWith("/.", offset)) {
+				--length;
+				continue;
+			}
+			// (C.)
+			if(input.startsWith("/../", offset))
+				offset += 3;
+			else if(length - offset == 3 && input.startsWith("/..", offset))
+				length -= 2;
+			else {
+				// (D.)
+				if(length - offset == 1 && input.charAt(offset) == '.') {
+					offset = length;
+					continue;
+				}
+				if(length - offset == 2 && input.startsWith("..", offset)) {
+					offset = length;
+					continue;
+				}
+				// (E.)
+				//TODO
+			}
+			int cpos = output.lastIndexOf("/");
+			output.setLength(cpos < 0 ? 0 : cpos);
+		}
+		return output.toString();
+	}
+
 	public static URLBuilder decompose(String spec) {
-		//TODO
-		return null;
+		URLBuilder sink = new URLBuilder(null);
+		URLParser.parse(spec, sink);
+		return sink;
 	}
 
 	public static String encode(String piece) {

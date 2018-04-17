@@ -559,7 +559,12 @@ public class URLBuilder implements URLParser.URLPartSink {
 					continue;
 				}
 				// (E.)
-				//TODO
+				int end = input.indexOf('/', offset + (input.charAt(offset) == '/' ? 1 : 0));
+				if(end < 0)
+					end = length;
+				output.append(input.substring(offset, end));
+				offset = end;
+				continue;
 			}
 			int cpos = output.lastIndexOf("/");
 			output.setLength(cpos < 0 ? 0 : cpos);

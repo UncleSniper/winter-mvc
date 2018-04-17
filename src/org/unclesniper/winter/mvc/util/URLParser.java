@@ -78,7 +78,7 @@ public final class URLParser {
 	private URLParser() {}
 
 	public static void parse(String spec, URLPartSink sink) {
-		/* ==== RFC 2396 ====
+		/* ==== RFC 3986 ====
 		 * excluded: 00-1F, 7F, 20, "<" | ">" | <">
 		 * uric          = reserved | unreserved | escaped
 		 * reserved      = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" |

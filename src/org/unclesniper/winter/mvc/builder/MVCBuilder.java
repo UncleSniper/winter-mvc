@@ -1,11 +1,17 @@
 package org.unclesniper.winter.mvc.builder;
 
+import java.net.URL;
+import java.net.URI;
 import org.unclesniper.winter.mvc.View;
 import org.unclesniper.winter.mvc.HTTPVerb;
 import org.unclesniper.winter.mvc.Controller;
 import org.unclesniper.winter.mvc.util.Transform;
 import org.unclesniper.winter.mvc.RequestHandler;
+import org.unclesniper.winter.mvc.util.URLBuilder;
+import org.unclesniper.winter.mvc.RedirectLocation;
+import org.unclesniper.winter.mvc.util.ValueHolder;
 import org.unclesniper.winter.mvc.ParameterizedView;
+import org.unclesniper.winter.mvc.MaybeRedirectModel;
 import org.unclesniper.winter.mvc.dispatch.PathMatcher;
 import org.unclesniper.winter.mvc.ParameterizedController;
 import org.unclesniper.winter.mvc.ParameterizedRequestHandler;
@@ -16,6 +22,16 @@ public interface MVCBuilder<PathKeyT, RequestParameterT,
 		RefreeReturnT extends MVCBuilder<PathKeyT, RequestParameterT, RefreeReturnT, RefreeReturnT>> {
 
 	DispatchModelRequestHandler<PathKeyT, RequestParameterT> dispatcher();
+
+	FreeReturnT withRedirectBase(ValueHolder<? extends URLBuilder> baseURL);
+
+	FreeReturnT withRedirectBase(String baseURL);
+
+	FreeReturnT withRedirectBase(URL baseURL);
+
+	FreeReturnT withRedirectBase(URI baseURL);
+
+	FreeReturnT withoutRedirectBase();
 
 	FreeReturnT on(HTTPVerb... verbs);
 
@@ -151,6 +167,140 @@ public interface MVCBuilder<PathKeyT, RequestParameterT,
 			ControllerParameterT, ModelT>
 	perform(ParameterizedController<ModelT, ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform);
+
+	<AddressT> RefreeReturnT performAndRedirect(Controller<? extends RedirectLocation<AddressT>> controller);
+
+	<AddressT> RefreeReturnT performAndRedirectAnd(Controller<? extends RedirectLocation<AddressT>> controller);
+
+	<AddressT> RefreeReturnT performAndRedirect(ParameterizedController<? extends RedirectLocation<AddressT>,
+			? super RequestParameterT> controller);
+
+	<AddressT> RefreeReturnT performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<AddressT>,
+			? super RequestParameterT> controller);
+
+	<AddressT, ControllerParameterT>
+	RefreeReturnT performAndRedirect(ParameterizedController<? extends RedirectLocation<AddressT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform);
+
+	<AddressT, ControllerParameterT>
+	RefreeReturnT performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<AddressT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform);
+
+	RefreeReturnT performAndRedirect(Controller<? extends RedirectLocation<URLBuilder>> controller,
+			ValueHolder<? extends URLBuilder> baseURL);
+
+	RefreeReturnT performAndRedirectAnd(Controller<? extends RedirectLocation<URLBuilder>> controller,
+			ValueHolder<? extends URLBuilder> baseURL);
+
+	RefreeReturnT performAndRedirect(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller, ValueHolder<? extends URLBuilder> baseURL);
+
+	RefreeReturnT performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller, ValueHolder<? extends URLBuilder> baseURL);
+
+	<ControllerParameterT> RefreeReturnT
+	performAndRedirect(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ValueHolder<? extends URLBuilder> baseURL);
+
+	<ControllerParameterT> RefreeReturnT
+	performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ValueHolder<? extends URLBuilder> baseURL);
+
+	RefreeReturnT performAndRedirectBased(Controller<? extends RedirectLocation<URLBuilder>> controller);
+
+	RefreeReturnT performAndRedirectBasedAnd(Controller<? extends RedirectLocation<URLBuilder>> controller);
+
+	RefreeReturnT performAndRedirectBased(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller);
+
+	RefreeReturnT performAndRedirectBasedAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller);
+
+	<ControllerParameterT> RefreeReturnT
+	performAndRedirectBased(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform);
+
+	<ControllerParameterT> RefreeReturnT
+	performAndRedirectBasedAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			View<? super InnerModelT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			View<? super InnerModelT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller, View<? super InnerModelT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller, View<? super InnerModelT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view);
+
+	<AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view);
+
+	<AddressT, InnerModelT, ControllerParameterT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			View<? super InnerModelT> view);
+
+	<AddressT, InnerModelT, ControllerParameterT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			View<? super InnerModelT> view);
+
+	<AddressT, InnerModelT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
+
+	<AddressT, InnerModelT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
+
+	<AddressT, InnerModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
+
+	<AddressT, InnerModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform);
 
 	public static <PathKeyT, RequestParameterT> FreeBuilder<PathKeyT, RequestParameterT>
 	route(Transform<? super ParameterizedRequestHandler<? super RequestParameterT>,

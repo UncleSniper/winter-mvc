@@ -1,11 +1,13 @@
 package org.unclesniper.winter.mvc.util;
 
+import java.net.URL;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 import org.unclesniper.winter.mvc.Doom;
 import java.io.UnsupportedEncodingException;
 
-public class URLBuilder implements URLParser.URLPartSink {
+public class URLBuilder implements URLBase, URLParser.URLPartSink {
 
 	private String scheme;
 
@@ -101,6 +103,26 @@ public class URLBuilder implements URLParser.URLPartSink {
 		this.path = path;
 		this.query = query;
 		this.fragment = fragment;
+	}
+
+	public URLBuilder(URL url) {
+		scheme = url.getProtocol();
+		user = url.getUserInfo();
+		host = url.getHost();
+		port = url.getPort();
+		path = url.getPath();
+		query = url.getQuery();
+		fragment = url.getRef();
+	}
+
+	public URLBuilder(URI uri) {
+		scheme = uri.getScheme();
+		user = uri.getRawUserInfo();
+		host = uri.getHost();
+		port = uri.getPort();
+		path = uri.getRawPath();
+		query = uri.getRawQuery();
+		fragment = uri.getRawFragment();
 	}
 
 	public String getScheme() {
@@ -206,6 +228,11 @@ public class URLBuilder implements URLParser.URLPartSink {
 		return this;
 	}
 
+	public URLBuilder userEsc(String user) {
+		this.user = user == null ? null : URLBuilder.encode(user);
+		return this;
+	}
+
 	public URLBuilder port(int port) {
 		this.port = port;
 		return this;
@@ -218,6 +245,12 @@ public class URLBuilder implements URLParser.URLPartSink {
 
 	public URLBuilder path(String path) {
 		this.path = path;
+		pathBuilder = null;
+		return this;
+	}
+
+	public URLBuilder pathEsc(String path) {
+		this.path = path == null ? null : URLBuilder.encode(path);
 		pathBuilder = null;
 		return this;
 	}
@@ -315,6 +348,12 @@ public class URLBuilder implements URLParser.URLPartSink {
 
 	public URLBuilder query(String query) {
 		this.query = query;
+		queryBuilder = null;
+		return this;
+	}
+
+	public URLBuilder queryEsc(String query) {
+		this.query = query == null ? null : URLBuilder.encode(query);
 		queryBuilder = null;
 		return this;
 	}
@@ -471,7 +510,7 @@ public class URLBuilder implements URLParser.URLPartSink {
 			r.query = r.queryBuilder.toString();
 			r.queryBuilder = null;
 		}
-		final URLBuilder base = this, t = new URLBuilder(null);
+		final URLBuilder base = this, t = new URLBuilder((String)null);
 		if(r.scheme != null) {
 			t.scheme = r.scheme;
 			t.user = r.user;
@@ -512,6 +551,22 @@ public class URLBuilder implements URLParser.URLPartSink {
 		}
 		t.fragment = r.fragment;
 		return t;
+	}
+
+	public void finish() {
+		if(pathBuilder != null) {
+			path = pathBuilder.toString();
+			pathBuilder = null;
+		}
+		if(queryBuilder != null) {
+			query = queryBuilder.toString();
+			queryBuilder = null;
+		}
+	}
+
+	public URLBuilder copy() {
+		return new URLBuilder(scheme, user, host, port, pathBuilder != null ? pathBuilder.toString() : path,
+				queryBuilder != null ? queryBuilder.toString() : query, fragment);
 	}
 
 	private static String mergePaths(boolean baseHasAuthority, String basePath, String rPath) {
@@ -573,7 +628,7 @@ public class URLBuilder implements URLParser.URLPartSink {
 	}
 
 	public static URLBuilder decompose(String spec) {
-		URLBuilder sink = new URLBuilder(null);
+		URLBuilder sink = new URLBuilder((String)null);
 		URLParser.parse(spec, sink);
 		return sink;
 	}

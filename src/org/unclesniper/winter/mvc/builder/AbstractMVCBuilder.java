@@ -1,12 +1,20 @@
 package org.unclesniper.winter.mvc.builder;
 
+import java.net.URL;
+import java.net.URI;
 import org.unclesniper.winter.mvc.View;
 import org.unclesniper.winter.mvc.HTTPVerb;
 import org.unclesniper.winter.mvc.Controller;
+import org.unclesniper.winter.mvc.RedirectView;
 import org.unclesniper.winter.mvc.util.Transform;
 import org.unclesniper.winter.mvc.RequestHandler;
+import org.unclesniper.winter.mvc.util.URLBuilder;
+import org.unclesniper.winter.mvc.RedirectLocation;
+import org.unclesniper.winter.mvc.util.ValueHolder;
 import org.unclesniper.winter.mvc.ParameterizedView;
 import org.unclesniper.winter.mvc.MVCRequestHandler;
+import org.unclesniper.winter.mvc.BasedRedirectView;
+import org.unclesniper.winter.mvc.MaybeRedirectModel;
 import org.unclesniper.winter.mvc.dispatch.PathMatcher;
 import org.unclesniper.winter.mvc.ParameterizedController;
 import org.unclesniper.winter.mvc.ParameterizedRequestHandler;
@@ -36,6 +44,30 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 				= new DispatchModelRequestHandler<PathKeyT, RequestParameterT>();
 		state.putRules(handler);
 		return handler;
+	}
+
+	public FreeReturnT withRedirectBase(ValueHolder<? extends URLBuilder> baseURL) {
+		state.setBaseURL(baseURL);
+		return freeThis;
+	}
+
+	public FreeReturnT withRedirectBase(String baseURL) {
+		state.setBaseURL(baseURL == null ? null : ValueHolder.always(URLBuilder.decompose(baseURL)));
+		return freeThis;
+	}
+
+	public FreeReturnT withRedirectBase(URL baseURL) {
+		state.setBaseURL(baseURL == null ? null : ValueHolder.always(new URLBuilder(baseURL)));
+		return freeThis;
+	}
+
+	public FreeReturnT withRedirectBase(URI baseURL) {
+		state.setBaseURL(baseURL == null ? null : ValueHolder.always(new URLBuilder(baseURL)));
+		return freeThis;
+	}
+
+	public FreeReturnT withoutRedirectBase() {
+		return freeThis;
 	}
 
 	public FreeReturnT on(HTTPVerb... verbs) {
@@ -332,6 +364,245 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 			ParameterizedView<? super ModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
 		return mvc(true, controller, view, controllerParameterTransform, viewParameterTransform);
+	}
+
+	public <AddressT> RefreeReturnT
+	performAndRedirect(Controller<? extends RedirectLocation<AddressT>> controller) {
+		return mvc(false, ParameterizedController.ignore(controller),
+				ParameterizedView.ignore(new RedirectView<AddressT>()),
+				Transform.widen(), Transform.widen());
+	}
+
+	public <AddressT> RefreeReturnT
+	performAndRedirectAnd(Controller<? extends RedirectLocation<AddressT>> controller) {
+		return mvc(true, ParameterizedController.ignore(controller),
+				ParameterizedView.ignore(new RedirectView<AddressT>()),
+				Transform.widen(), Transform.widen());
+	}
+
+	public <AddressT> RefreeReturnT performAndRedirect(ParameterizedController<? extends RedirectLocation<AddressT>,
+			? super RequestParameterT> controller) {
+		return mvc(false, controller, ParameterizedView.ignore(new RedirectView<AddressT>()),
+				Transform.widen(), Transform.widen());
+	}
+
+	public <AddressT> RefreeReturnT
+	performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<AddressT>,
+			? super RequestParameterT> controller) {
+		return mvc(true, controller, ParameterizedView.ignore(new RedirectView<AddressT>()),
+				Transform.widen(), Transform.widen());
+	}
+
+	public <AddressT, ControllerParameterT>
+	RefreeReturnT performAndRedirect(ParameterizedController<? extends RedirectLocation<AddressT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform) {
+		return mvc(false, controller, ParameterizedView.ignore(new RedirectView<AddressT>()),
+				controllerParameterTransform, Transform.widen());
+	}
+
+	public <AddressT, ControllerParameterT>
+	RefreeReturnT performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<AddressT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform) {
+		return mvc(true, controller, ParameterizedView.ignore(new RedirectView<AddressT>()),
+				controllerParameterTransform, Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirect(Controller<? extends RedirectLocation<URLBuilder>> controller,
+			ValueHolder<? extends URLBuilder> baseURL) {
+		return mvc(false, ParameterizedController.ignore(controller),
+				ParameterizedView.ignore(new BasedRedirectView(baseURL)),
+				Transform.widen(), Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirectAnd(Controller<? extends RedirectLocation<URLBuilder>> controller,
+			ValueHolder<? extends URLBuilder> baseURL) {
+		return mvc(true, ParameterizedController.ignore(controller),
+				ParameterizedView.ignore(new BasedRedirectView(baseURL)),
+				Transform.widen(), Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirect(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller, ValueHolder<? extends URLBuilder> baseURL) {
+		return mvc(false, controller, ParameterizedView.ignore(new BasedRedirectView(baseURL)),
+				Transform.widen(), Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller, ValueHolder<? extends URLBuilder> baseURL) {
+		return mvc(true, controller, ParameterizedView.ignore(new BasedRedirectView(baseURL)),
+				Transform.widen(), Transform.widen());
+	}
+
+	public <ControllerParameterT> RefreeReturnT
+	performAndRedirect(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ValueHolder<? extends URLBuilder> baseURL) {
+		return mvc(false, controller, ParameterizedView.ignore(new BasedRedirectView(baseURL)),
+				controllerParameterTransform, Transform.widen());
+	}
+
+	public <ControllerParameterT> RefreeReturnT
+	performAndRedirectAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ValueHolder<? extends URLBuilder> baseURL) {
+		return mvc(true, controller, ParameterizedView.ignore(new BasedRedirectView(baseURL)),
+				controllerParameterTransform, Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirectBased(Controller<? extends RedirectLocation<URLBuilder>> controller) {
+		return mvc(false, ParameterizedController.ignore(controller),
+				ParameterizedView.ignore(new BasedRedirectView(state.getBaseURL())),
+				Transform.widen(), Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirectBasedAnd(Controller<? extends RedirectLocation<URLBuilder>> controller) {
+		return mvc(true, ParameterizedController.ignore(controller),
+				ParameterizedView.ignore(new BasedRedirectView(state.getBaseURL())),
+				Transform.widen(), Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirectBased(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller) {
+		return mvc(false, controller, ParameterizedView.ignore(new BasedRedirectView(state.getBaseURL())),
+				Transform.widen(), Transform.widen());
+	}
+
+	public RefreeReturnT performAndRedirectBasedAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			? super RequestParameterT> controller) {
+		return mvc(true, controller, ParameterizedView.ignore(new BasedRedirectView(state.getBaseURL())),
+				Transform.widen(), Transform.widen());
+	}
+
+	public <ControllerParameterT> RefreeReturnT
+	performAndRedirectBased(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform) {
+		return mvc(false, controller, ParameterizedView.ignore(new BasedRedirectView(state.getBaseURL())),
+				controllerParameterTransform, Transform.widen());
+	}
+
+	public <ControllerParameterT> RefreeReturnT
+	performAndRedirectBasedAnd(ParameterizedController<? extends RedirectLocation<URLBuilder>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform) {
+		return mvc(true, controller, ParameterizedView.ignore(new BasedRedirectView(state.getBaseURL())),
+				controllerParameterTransform, Transform.widen());
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			View<? super InnerModelT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			View<? super InnerModelT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller, View<? super InnerModelT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller, View<? super InnerModelT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			? super RequestParameterT> controller,
+			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT, ControllerParameterT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			View<? super InnerModelT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT, ControllerParameterT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			View<? super InnerModelT> view) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
+		//TODO
+		return null;
+	}
+
+	public <AddressT, InnerModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
+	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
+			ControllerParameterT> controller,
+			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
+			ParameterizedView<? super InnerModelT, ViewParameterT> view,
+			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
+		//TODO
+		return null;
 	}
 
 	public <ModelT> ControllerBoundBuilder<PathKeyT, RequestParameterT, RequestParameterT, ModelT>

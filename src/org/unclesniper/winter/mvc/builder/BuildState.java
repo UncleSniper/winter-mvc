@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import org.unclesniper.winter.mvc.HTTPVerb;
 import org.unclesniper.winter.mvc.util.Transform;
+import org.unclesniper.winter.mvc.util.URLBuilder;
+import org.unclesniper.winter.mvc.util.ValueHolder;
 import org.unclesniper.winter.mvc.dispatch.PathMatcher;
 import org.unclesniper.winter.mvc.dispatch.DispatchRule;
 import org.unclesniper.winter.mvc.dispatch.StringPathMatcher;
@@ -27,6 +29,8 @@ public final class BuildState<PathKeyT, RequestParameterT> {
 
 	private final List<DispatchRule<PathKeyT, RequestParameterT>> rules
 			= new LinkedList<DispatchRule<PathKeyT, RequestParameterT>>();
+
+	private ValueHolder<? extends URLBuilder> baseURL;
 
 	public BuildState(Transform<? super ParameterizedRequestHandler<? super RequestParameterT>,
 			? extends ParameterizedRequestHandler<? super RequestParameterT>> handlerTransform) {
@@ -79,6 +83,14 @@ public final class BuildState<PathKeyT, RequestParameterT> {
 	public void addContentTypes(String... types) {
 		for(String type : types)
 			contentTypes.add(type);
+	}
+
+	public ValueHolder<? extends URLBuilder> getBaseURL() {
+		return baseURL;
+	}
+
+	public void setBaseURL(ValueHolder<? extends URLBuilder> baseURL) {
+		this.baseURL = baseURL;
 	}
 
 	public void emitRule(ParameterizedRequestHandler<? super RequestParameterT> handler) {

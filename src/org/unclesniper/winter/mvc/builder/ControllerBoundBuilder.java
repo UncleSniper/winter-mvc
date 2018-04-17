@@ -1,9 +1,13 @@
 package org.unclesniper.winter.mvc.builder;
 
+import java.net.URL;
+import java.net.URI;
 import org.unclesniper.winter.mvc.View;
 import org.unclesniper.winter.mvc.util.Transform;
+import org.unclesniper.winter.mvc.util.URLBuilder;
 import org.unclesniper.winter.mvc.ParameterizedView;
 import org.unclesniper.winter.mvc.MVCRequestHandler;
+import org.unclesniper.winter.mvc.StaticRedirectView;
 import org.unclesniper.winter.mvc.ParameterizedController;
 
 public class ControllerBoundBuilder<PathKeyT, RequestParameterT, ControllerParameterT, ModelT>
@@ -74,6 +78,60 @@ public class ControllerBoundBuilder<PathKeyT, RequestParameterT, ControllerParam
 	renderAnd(ParameterizedView<? super ModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
 		mvc(view, viewParameterTransform);
+		reset();
+		return refree();
+	}
+
+	public ControllerBoundBuilder<PathKeyT, RequestParameterT, ControllerParameterT, ModelT>
+	redirectTo(String destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination)), Transform.widen());
+		return this;
+	}
+
+	public FreeBuilder<PathKeyT, RequestParameterT> redirectToAnd(String destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination)), Transform.widen());
+		reset();
+		return refree();
+	}
+
+	public ControllerBoundBuilder<PathKeyT, RequestParameterT, ControllerParameterT, ModelT>
+	redirectTo(URLBuilder destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination == null
+				? null : destination.toString())), Transform.widen());
+		return this;
+	}
+
+	public FreeBuilder<PathKeyT, RequestParameterT> redirectToAnd(URLBuilder destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination == null
+				? null : destination.toString())), Transform.widen());
+		reset();
+		return refree();
+	}
+
+	public ControllerBoundBuilder<PathKeyT, RequestParameterT, ControllerParameterT, ModelT>
+	redirectTo(URL destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination == null
+				? null : destination.toString())), Transform.widen());
+		return this;
+	}
+
+	public FreeBuilder<PathKeyT, RequestParameterT> redirectToAnd(URL destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination == null
+				? null : destination.toString())), Transform.widen());
+		reset();
+		return refree();
+	}
+
+	public ControllerBoundBuilder<PathKeyT, RequestParameterT, ControllerParameterT, ModelT>
+	redirectTo(URI destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination == null
+				? null : destination.toString())), Transform.widen());
+		return this;
+	}
+
+	public FreeBuilder<PathKeyT, RequestParameterT> redirectToAnd(URI destination) {
+		mvc(ParameterizedView.ignore(new StaticRedirectView<ModelT>(destination == null
+				? null : destination.toString())), Transform.widen());
 		reset();
 		return refree();
 	}

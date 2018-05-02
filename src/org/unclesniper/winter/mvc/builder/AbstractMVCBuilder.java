@@ -14,6 +14,7 @@ import org.unclesniper.winter.mvc.util.ValueHolder;
 import org.unclesniper.winter.mvc.ParameterizedView;
 import org.unclesniper.winter.mvc.MVCRequestHandler;
 import org.unclesniper.winter.mvc.BasedRedirectView;
+import org.unclesniper.winter.mvc.MaybeRedirectView;
 import org.unclesniper.winter.mvc.MaybeRedirectModel;
 import org.unclesniper.winter.mvc.dispatch.PathMatcher;
 import org.unclesniper.winter.mvc.ParameterizedController;
@@ -496,59 +497,65 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
 			View<? super InnerModelT> view) {
-		//TODO
-		return null;
+		return mvc(false, ParameterizedController.ignore(controller),
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(ParameterizedView.ignore(view)),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
 			View<? super InnerModelT> view) {
-		//TODO
-		return null;
+		return mvc(true, ParameterizedController.ignore(controller),
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(ParameterizedView.ignore(view)),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
 			? super RequestParameterT> controller, View<? super InnerModelT> view) {
-		//TODO
-		return null;
+		return mvc(false, controller,
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(ParameterizedView.ignore(view)),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
 			? super RequestParameterT> controller, View<? super InnerModelT> view) {
-		//TODO
-		return null;
+		return mvc(true, controller,
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(ParameterizedView.ignore(view)),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
 			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
-		//TODO
-		return null;
+		return mvc(false, ParameterizedController.ignore(controller),
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(view),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
 			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
-		//TODO
-		return null;
+		return mvc(true, ParameterizedController.ignore(controller),
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(view),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirect(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
 			? super RequestParameterT> controller,
 			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
-		//TODO
-		return null;
+		return mvc(false, controller, new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(view),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT> RefreeReturnT
 	handleAndMaybeRedirectAnd(ParameterizedController<? extends MaybeRedirectModel<AddressT, InnerModelT>,
 			? super RequestParameterT> controller,
 			ParameterizedView<? super InnerModelT, ? super RequestParameterT> view) {
-		//TODO
-		return null;
+		return mvc(true, controller, new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(view),
+				Transform.widen(), Transform.widen());
 	}
 
 	public <AddressT, InnerModelT, ControllerParameterT> RefreeReturnT
@@ -556,8 +563,9 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 			ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			View<? super InnerModelT> view) {
-		//TODO
-		return null;
+		return mvc(false, controller,
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(ParameterizedView.ignore(view)),
+				controllerParameterTransform, Transform.widen());
 	}
 
 	public <AddressT, InnerModelT, ControllerParameterT> RefreeReturnT
@@ -565,24 +573,27 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 			ControllerParameterT> controller,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			View<? super InnerModelT> view) {
-		//TODO
-		return null;
+		return mvc(true, controller,
+				new MaybeRedirectView<AddressT, InnerModelT, RequestParameterT>(ParameterizedView.ignore(view)),
+				controllerParameterTransform, Transform.widen());
 	}
 
 	public <AddressT, InnerModelT, ViewParameterT> RefreeReturnT
 	handleAndMaybeRedirect(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
 			ParameterizedView<? super InnerModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
-		//TODO
-		return null;
+		return mvc(false, ParameterizedController.ignore(controller),
+				new MaybeRedirectView<AddressT, InnerModelT, ViewParameterT>(view),
+				Transform.widen(), viewParameterTransform);
 	}
 
 	public <AddressT, InnerModelT, ViewParameterT> RefreeReturnT
 	handleAndMaybeRedirectAnd(Controller<? extends MaybeRedirectModel<AddressT, InnerModelT>> controller,
 			ParameterizedView<? super InnerModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
-		//TODO
-		return null;
+		return mvc(true, ParameterizedController.ignore(controller),
+				new MaybeRedirectView<AddressT, InnerModelT, ViewParameterT>(view),
+				Transform.widen(), viewParameterTransform);
 	}
 
 	public <AddressT, InnerModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
@@ -591,8 +602,8 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			ParameterizedView<? super InnerModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
-		//TODO
-		return null;
+		return mvc(false, controller, new MaybeRedirectView<AddressT, InnerModelT, ViewParameterT>(view),
+				controllerParameterTransform, viewParameterTransform);
 	}
 
 	public <AddressT, InnerModelT, ControllerParameterT, ViewParameterT> RefreeReturnT
@@ -601,8 +612,8 @@ public abstract class AbstractMVCBuilder<PathKeyT, RequestParameterT,
 			Transform<? super RequestParameterT, ? extends ControllerParameterT> controllerParameterTransform,
 			ParameterizedView<? super InnerModelT, ViewParameterT> view,
 			Transform<? super RequestParameterT, ? extends ViewParameterT> viewParameterTransform) {
-		//TODO
-		return null;
+		return mvc(true, controller, new MaybeRedirectView<AddressT, InnerModelT, ViewParameterT>(view),
+				controllerParameterTransform, viewParameterTransform);
 	}
 
 	public <ModelT> ControllerBoundBuilder<PathKeyT, RequestParameterT, RequestParameterT, ModelT>

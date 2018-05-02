@@ -4,4 +4,8 @@ public interface ServiceHolder<ServiceT> {
 
 	ServiceT getService();
 
+	public static <ServiceT> ServiceHolder<ServiceT> constant(ServiceT service) {
+		return () -> service;
+	}
+
 }

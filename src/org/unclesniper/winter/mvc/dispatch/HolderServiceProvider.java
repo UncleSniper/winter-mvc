@@ -22,4 +22,8 @@ public final class HolderServiceProvider<ServiceT> implements ServiceProvider<Se
 
 	public void releaseService(ServiceT service) {}
 
+	public static <ServiceT> ServiceProvider<ServiceT> constant(ServiceT service) {
+		return new HolderServiceProvider<ServiceT>(ServiceHolder.constant(service));
+	}
+
 }

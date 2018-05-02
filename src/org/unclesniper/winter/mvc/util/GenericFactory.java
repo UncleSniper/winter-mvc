@@ -4,4 +4,8 @@ public interface GenericFactory<T> {
 
 	T newInstance();
 
+	public static <T> GenericFactory<T> constant(T instance) {
+		return () -> instance;
+	}
+
 }

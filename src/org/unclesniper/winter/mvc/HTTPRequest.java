@@ -8,8 +8,9 @@ import java.util.Locale;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import org.unclesniper.winter.mvc.lens.ParameterSource;
 
-public interface HTTPRequest {
+public interface HTTPRequest extends ParameterSource {
 
 	Iterable<HTTPCookie> getCookies();
 
@@ -49,13 +50,9 @@ public interface HTTPRequest {
 
 	Iterable<Locale> getLocales();
 
-	String getParameter(String name);
-
 	Map<String, List<String>> getParameterMap();
 
 	Set<String> getParameterNames();
-
-	List<String> getParameters(String name);
 
 	Reader getReader();
 
